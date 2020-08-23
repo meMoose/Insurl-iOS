@@ -1,0 +1,144 @@
+if [[ ! $# -ne 0 ]]; then
+	echo "Install deb packages with url."
+	echo "Usage : insurl [options] Url"
+	echo "opt."
+	echo "-b : bulk install/max 5 url e.g “url1” “url2”"
+	echo "-l : installed tweaks"
+	echo "-r : uninstall/use package name"
+	echo "-v : verbose mode"
+	echo "-ur : uicache+respring"
+	exit 1
+fi
+
+if [[ ( $1 == -v && $2 == -b ) ]] && [[ $# = 3 ]]; then
+	echo "Please Input More Url"
+	exit 1
+	
+elif [[ ( $1 == -v && $2 == -b ) ]] && [[ $# = 2 ]]; then
+	echo "Please Input More Url"
+	exit 1
+	
+elif [[ ( $1 == -b && $2 == -v ) ]] && [[ $# = 3 ]]; then
+	echo "Please Input More Url"
+	exit 1
+	
+elif [[ $1 == -b ]] && [[ -z $2 ]]; then
+	echo "Please Input More Url"
+	exit 1
+	
+elif [[ $1 == -b ]] && [[ -z $3 ]]; then
+	echo "Please Input More Url"
+	exit 1
+	
+elif [[ $1 == -v ]] && [[ -z $2 ]]; then
+	echo "Please Input More Url"
+	exit 1
+	
+else
+	if [[ ( $1 == -v && $2 != -b && $2 != -r ) ]] && [[ -n ${@:3:5} ]]; then
+		echo "Please use bulk install"
+		exit 1
+		
+	elif [[ ( $1 != -v && $1 != -b && $1 != -r ) ]] && [[ -n ${@:2:5} ]]; then
+		echo "Please use bulk install"
+		exit 1
+		
+	fi
+fi
+
+if [[ $1 == -r ]] && [[ -z $2 ]]; then
+	echo "Please Input Package Name"
+	exit 1
+	
+else
+	if [[ ( $1 == -r && $2 == -v ) ]] && [[ -z $3 ]]; then
+		echo "Please Input Package Name"
+		exit 1
+	elif [[ ( $1 == -v && $2 == -r ) ]] && [[ -z $3 ]]; then 
+		echo "Please Input Package Name"
+		exit 1
+		
+	fi
+fi
+
+if [[ $1 == -r ]] && [[ $2 == -v ]]; then
+	echo "Uninstalling..."
+	apt-get remove ${@:3}
+	echo "Done!"
+	exit 0
+elif [[ $1 == -v ]] && [[ $2 == -r ]]; then
+	echo "Uninstalling..."
+	apt-get remove ${@:3}
+	echo "Done!"
+	exit 0
+else
+	if [[ $1 == -r ]]; then
+		echo "Uninstalling..."
+		apt-get remove -y ${@:2} > /dev/null 2>&1
+		uicache
+		echo "Done!"
+		exit 0
+		
+	fi
+fi
+
+if [[ $1 == -ur ]]; then
+	uicache
+	echo "your phone will respring in...3"
+	sleep 1;
+	echo "will respring in 2..."
+	sleep 1;
+	echo "will respring in 1..."
+	sleep 1;
+	killall -9 backboardd
+fi
+
+if [[ $1 == -l ]]; then
+	ls /var/lib/dpkg/info | grep list | cut -d "." -f -3
+	exit 0
+fi
+
+if [[ $# = 1 ]] && [[ -z ${@:2} ]]; then
+	mkdir /var/tmp/Insurldebs
+	var=${1}
+	echo ${var}>/var/tmp/Insurldebs/deb.txt
+	
+elif [[ $1 == -v ]] && [[ -z $3 ]]; then
+	mkdir /var/tmp/Insurldebs
+	echo $2>/var/tmp/Insurldebs/deb.txt
+	
+else 
+	if [[ $1 == -b ]] && [[ $2 == -v ]]; then
+		mkdir /var/tmp/Insurldebs
+		echo ${@:3:5} | tr ' ' '\n'>/var/tmp/Insurldebs/deb.txt
+	elif [[ $1 == -v ]] && [[ $2 == -b ]]; then
+		mkdir /var/tmp/Insurldebs
+		echo ${@:3:5} | tr ' ' '\n'>/var/tmp/Insurldebs/deb.txt
+	else 
+		if [[ $1 == -b ]] && [[ -n $@ ]]; then
+			mkdir /var/tmp/Insurldebs
+			echo ${@:2:5} | tr ' ' '\n'>/var/tmp/Insurldebs/deb.txt
+			
+		fi
+	fi
+fi
+
+if [[ $1 ==  -v ]] || [[ $2 == -v ]]; then
+	echo "Downloading..."
+	wget -i /var/tmp/Insurldebs/deb.txt -P /var/tmp/Insurldebs
+else
+	echo "Downloading..."
+	wget -i /var/tmp/Insurldebs/deb.txt -P /var/tmp/Insurldebs 2>/dev/null
+fi
+
+if [[ $1 == -v ]] || [[ $2 == -v ]]; then
+	echo "Installing..."
+	dpkg -iR /var/tmp/Insurldebs
+	uicache
+else
+	echo "Installing..."
+	dpkg -iR /var/tmp/Insurldebs > /dev/null 2>&1
+	uicache
+fi
+rm -r /var/tmp/Insurldebs
+echo "Done!"

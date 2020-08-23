@@ -1,0 +1,14 @@
+Package: com.moose.insurl
+Name: Insurl
+Section: Utilities
+Installed-Size: 2,6
+Author: Moose <gathering011@gmail.com>
+Maintainer: Moose <gathering011@gmail.com>
+Architecture: iphoneos-arm
+Version: 1.5.1
+Depends: wget, coreutils
+Pre-Depends: firmware (>= 5.0)
+Description: A Command line utility to install deb packages with url.
+Homepage: https://github.com/meMoose
+Tag: role::enduser, purpose::console
+Depiction: https://memoose.github.io/repo/depic/Insurl.html
