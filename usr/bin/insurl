@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [[ ! $# -ne 0 ]]; then
 	echo "Install deb packages with url."
 	echo "Usage : insurl [options] Url"
